@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="description"
+        content="آزمون پیشرفته زبان انگلیسی Prospect 2">
+
+  <title>Prospect 2 | آزمون پیشرفته</title>
+
+  <!-- Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- Background -->
+  <div class="background">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="topbar glass">
+
+    <div class="brand">
+      <div class="brand-logo">P2</div>
+
+      <div class="brand-text">
+        <strong>Prospect 2</strong>
+        <span>Advanced English Quiz</span>
+      </div>
+    </div>
+
+    <button
+      id="themeToggle"
+      class="theme-button"
+      type="button"
+      aria-label="تغییر تم">
+      🌙
+    </button>
+
+  </header>
+
+
+  <main class="container">
+
+    <!-- ================= LOGIN ================= -->
+
+    <section id="loginScreen" class="screen active">
+
+      <div class="login-card glass floating">
+
+        <div class="badge">
+          ENGLISH • GRADE 8
+        </div>
+
+        <h1>
+          آزمون چالشی
+          <span>Prospect 2</span>
+        </h1>
+
+        <p class="description">
+          ۲۰ سؤال چهارگزینه‌ای سطح پیشرفته،
+          بر اساس محتوای هفت درس کتاب Prospect 2.
+        </p>
+
+        <form id="loginForm">
+
+          <label for="studentName">
+            نام و نام خانوادگی
+          </label>
+
+          <input
+            id="studentName"
+            type="text"
+            maxlength="80"
+            autocomplete="name"
+            placeholder="مثلاً: علی رضایی"
+            required
+          >
+
+          <small>
+            نام شما همراه نتیجه آزمون ذخیره خواهد شد.
+          </small>
+
+          <button class="primary-button" type="submit">
+            <span>شروع آزمون</span>
+            <span>←</span>
+          </button>
+
+        </form>
+
+        <div class="features">
+          <span>۲۰ سؤال</span>
+          <i>•</i>
+          <span>۷ درس</span>
+          <i>•</i>
+          <span>سطح دشوار</span>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= QUIZ ================= -->
+
+    <section id="quizScreen" class="screen">
+
+      <div class="quiz-header glass">
+
+        <div>
+          <div class="badge">
+            QUIZ IN PROGRESS
+          </div>
+
+          <h2 id="welcomeName">
+            سلام 👋
+          </h2>
+        </div>
+
+        <div class="timer">
+
+          <span>زمان</span>
+
+          <strong id="timer">
+            00:00
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <!-- Progress -->
+
+      <div class="progress-card glass">
+
+        <div class="progress-info">
+
+          <span id="progressText">
+            سؤال ۱ از ۲۰
+          </span>
+
+          <span id="answeredText">
+            ۰ پاسخ
+          </span>
+
+        </div>
+
+        <div class="progress-track">
+          <div id="progressBar"></div>
+        </div>
+
+      </div>
+
+
+      <!-- Question -->
+
+      <div id="questionContainer"></div>
+
+
+      <!-- Navigation -->
+
+      <div class="navigation">
+
+        <button
+          id="prevButton"
+          class="secondary-button"
+          type="button">
+          → قبلی
+        </button>
+
+        <button
+          id="nextButton"
+          class="primary-button"
+          type="button">
+          بعدی ←
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= RESULT ================= -->
+
+    <section id="resultScreen" class="screen">
+
+      <div class="result-card glass floating">
+
+        <div class="success-icon">
+          ✓
+        </div>
+
+        <div class="badge">
+          QUIZ COMPLETE
+        </div>
+
+        <h2 id="resultTitle">
+          آزمون تمام شد!
+        </h2>
+
+        <p id="saveStatus">
+          در حال ثبت نتیجه...
+        </p>
+
+
+        <!-- Score -->
+
+        <div
+          id="scoreCircle"
+          class="score-circle">
+
+          <div>
+
+            <strong id="scoreValue">
+              0/20
+            </strong>
+
+            <span id="percentageValue">
+              ۰٪
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- Statistics -->
+
+        <div class="result-grid">
+
+          <div>
+            <span>صحیح</span>
+            <strong id="correctValue">۰</strong>
+          </div>
+
+          <div>
+            <span>غلط</span>
+            <strong id="wrongValue">۰</strong>
+          </div>
+
+          <div>
+            <span>بی‌پاسخ</span>
+            <strong id="blankValue">۰</strong>
+          </div>
+
+          <div>
+            <span>زمان</span>
+            <strong id="timeValue">۰۰:۰۰</strong>
+          </div>
+
+        </div>
+
+
+        <!-- Review -->
+
+        <div class="review">
+
+          <h3>
+            بررسی پاسخ‌ها
+          </h3>
+
+          <div id="reviewContainer"></div>
+
+        </div>
+
+
+        <button
+          id="restartButton"
+          class="primary-button"
+          type="button">
+
+          آزمون دوباره
+
+        </button>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <footer>
+    Prospect 2 • English Quiz
+  </footer>
+
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Application -->
+  <script src="script.js"></script>
+
+</body>
+</html>
