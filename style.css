@@ -1,8 +1,3 @@
-/* =====================================================
-   PROSPECT 2 QUIZ
-   Glassmorphism UI
-===================================================== */
-
 :root {
 
   --background: #eef3f9;
@@ -28,9 +23,6 @@
 
 }
 
-
-/* DARK MODE */
-
 [data-theme="dark"] {
 
   --background: #090e1b;
@@ -50,9 +42,6 @@
     0 25px 80px rgba(0,0,0,.38);
 
 }
-
-
-/* RESET */
 
 * {
   box-sizing: border-box;
