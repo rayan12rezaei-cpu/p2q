@@ -676,16 +676,13 @@ async function saveResult(
 
   if (error) {
 
-    console.error(
-      "Supabase error:",
-      error
-    );
+  console.error("Supabase error:", error);
 
-    $("saveStatus").textContent =
-      "ثبت نتیجه ناموفق بود.";
+  $("saveStatus").textContent =
+    `خطا: ${error.message}`;
 
-    $("saveStatus").style.color =
-      "var(--danger)";
+  $("saveStatus").style.color =
+    "var(--danger)";
 
   }
 
