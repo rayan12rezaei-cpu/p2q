@@ -1,45 +1,21 @@
 /* =====================================================
    PROSPECT 2 QUIZ
-   JavaScript + Supabase
+   Full JavaScript
+   GitHub Pages + Supabase REST API
 ===================================================== */
 
 
 /* =====================================================
-   SUPABASE CONFIGURATION
-
-   این دو مقدار را از:
-   Supabase Dashboard
-   → Project Settings
-   → API
-
-   دریافت و جایگزین کنید.
-
-   هرگز Service Role / Secret Key را اینجا قرار ندهید.
+   SUPABASE CONFIG
 ===================================================== */
 
+// Project URL — بدون /rest/v1/
 const SUPABASE_URL =
   "https://nahdmpxqnwemwlpxyzxt.supabase.co";
 
+// Publishable key یا anon key
 const SUPABASE_KEY =
   "sb_publishable_UfTXNkzJW5bt5qFXBH80uA_bSrqh-42";
-
-
-let supabaseClient = null;
-
-
-if (
-  window.supabase &&
-  SUPABASE_URL.startsWith("https://") &&
-  !SUPABASE_URL.includes("YOUR_")
-) {
-
-  supabaseClient =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
-
-}
 
 
 /* =====================================================
@@ -290,12 +266,17 @@ let elapsedSeconds = 0;
 
 
 /* =====================================================
-   HELPERS
+   DOM HELPER
 ===================================================== */
 
-const $ = id =>
-  document.getElementById(id);
+function $(id) {
+  return document.getElementById(id);
+}
 
+
+/* =====================================================
+   SCREEN MANAGEMENT
+===================================================== */
 
 function showScreen(id) {
 
@@ -318,6 +299,30 @@ function showScreen(id) {
 }
 
 
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(text) {
+
+  return String(text).replace(
+    /[&<>"']/g,
+    char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    }[char])
+  );
+
+}
+
+
+/* =====================================================
+   TIME FORMAT
+===================================================== */
+
 function formatTime(seconds) {
 
   const minutes =
@@ -333,49 +338,44 @@ function formatTime(seconds) {
 }
 
 
-function escapeHTML(text) {
-
-  return text.replace(
-    /[&<>"']/g,
-    char => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;"
-    }[char])
-  );
-
-}
-
-
 /* =====================================================
    TIMER
 ===================================================== */
 
 function startTimer() {
 
+  stopTimer();
+
   startTime = Date.now();
 
-  timerInterval =
-    setInterval(() => {
+  elapsedSeconds = 0;
 
-      elapsedSeconds =
-        Math.floor(
-          (Date.now() - startTime) / 1000
-        );
+  $("timer").textContent = "00:00";
 
-      $("timer").textContent =
-        formatTime(elapsedSeconds);
+  timerInterval = setInterval(() => {
 
-    }, 1000);
+    elapsedSeconds =
+      Math.floor(
+        (Date.now() - startTime) / 1000
+      );
+
+    $("timer").textContent =
+      formatTime(elapsedSeconds);
+
+  }, 1000);
 
 }
 
 
 function stopTimer() {
 
-  clearInterval(timerInterval);
+  if (timerInterval !== null) {
+
+    clearInterval(timerInterval);
+
+    timerInterval = null;
+
+  }
 
 }
 
@@ -389,19 +389,30 @@ function renderQuestion() {
   const question =
     questions[currentQuestion];
 
+
+  /* Progress */
+
   $("progressText").textContent =
     `سؤال ${currentQuestion + 1} از ${questions.length}`;
 
-  $("answeredText").textContent =
-    `${answers.filter(
+
+  const answeredCount =
+    answers.filter(
       answer => answer !== null
-    ).length} پاسخ`;
+    ).length;
+
+
+  $("answeredText").textContent =
+    `${answeredCount} پاسخ`;
+
 
   $("progressBar").style.width =
     `${((currentQuestion + 1) / questions.length) * 100}%`;
 
 
-  const options =
+  /* Options */
+
+  const optionsHTML =
     question.options
       .map((option, index) => {
 
@@ -410,17 +421,17 @@ function renderQuestion() {
 
         return `
 
-          <label
-            class="option ${selected ? "selected" : ""}">
+          <label class="option ${selected ? "selected" : ""}">
 
             <input
               type="radio"
               name="question"
               value="${index}"
-              ${selected ? "checked" : ""}>
+              ${selected ? "checked" : ""}
+            >
 
             <span class="option-letter">
-              ${["A","B","C","D"][index]}
+              ${["A", "B", "C", "D"][index]}
             </span>
 
             <span class="option-text">
@@ -435,12 +446,14 @@ function renderQuestion() {
       .join("");
 
 
+  /* Question */
+
   $("questionContainer").innerHTML = `
 
     <article class="question-card glass">
 
       <div class="question-number">
-        QUESTION ${String(currentQuestion + 1).padStart(2,"0")}
+        QUESTION ${String(currentQuestion + 1).padStart(2, "0")}
       </div>
 
       <div class="question-text">
@@ -448,13 +461,15 @@ function renderQuestion() {
       </div>
 
       <div class="options">
-        ${options}
+        ${optionsHTML}
       </div>
 
     </article>
 
   `;
 
+
+  /* Option listeners */
 
   document
     .querySelectorAll(
@@ -477,13 +492,70 @@ function renderQuestion() {
     });
 
 
+  /* Buttons */
+
   $("prevButton").disabled =
     currentQuestion === 0;
+
 
   $("nextButton").textContent =
     currentQuestion === questions.length - 1
       ? "ثبت آزمون ✓"
       : "بعدی ←";
+
+}
+
+
+/* =====================================================
+   CALCULATE RESULT
+===================================================== */
+
+function calculateResult() {
+
+  let correct = 0;
+
+  for (
+    let i = 0;
+    i < questions.length;
+    i++
+  ) {
+
+    if (
+      answers[i] ===
+      questions[i].answer
+    ) {
+
+      correct++;
+
+    }
+
+  }
+
+
+  const blank =
+    answers.filter(
+      answer => answer === null
+    ).length;
+
+
+  const wrong =
+    questions.length -
+    correct -
+    blank;
+
+
+  const percentage =
+    Math.round(
+      (correct / questions.length) * 100
+    );
+
+
+  return {
+    correct,
+    wrong,
+    blank,
+    percentage
+  };
 
 }
 
@@ -496,49 +568,34 @@ function finishQuiz() {
 
   stopTimer();
 
-  const correct =
-    answers.reduce(
-      (total, answer, index) =>
-        total +
-        (answer === questions[index].answer ? 1 : 0),
-      0
-    );
 
-  const blank =
-    answers.filter(
-      answer => answer === null
-    ).length;
-
-  const wrong =
-    questions.length -
-    correct -
-    blank;
-
-  const percentage =
-    Math.round(
-      correct /
-      questions.length *
-      100
-    );
+  const result =
+    calculateResult();
 
 
   $("resultTitle").textContent =
     `${studentName}، آزمون تمام شد!`;
 
+
   $("scoreValue").textContent =
-    `${correct}/${questions.length}`;
+    `${result.correct}/${questions.length}`;
+
 
   $("percentageValue").textContent =
-    `${percentage}٪`;
+    `${result.percentage}٪`;
+
 
   $("correctValue").textContent =
-    correct;
+    result.correct;
+
 
   $("wrongValue").textContent =
-    wrong;
+    result.wrong;
+
 
   $("blankValue").textContent =
-    blank;
+    result.blank;
+
 
   $("timeValue").textContent =
     formatTime(elapsedSeconds);
@@ -548,7 +605,7 @@ function finishQuiz() {
     .style
     .setProperty(
       "--score",
-      `${percentage}%`
+      `${result.percentage}%`
     );
 
 
@@ -556,9 +613,10 @@ function finishQuiz() {
 
   showScreen("resultScreen");
 
+
   saveResult(
-    correct,
-    percentage
+    result.correct,
+    result.percentage
   );
 
 }
@@ -572,45 +630,49 @@ function renderReview() {
 
   $("reviewContainer").innerHTML =
     questions
-      .map((question,index) => {
-
-        const answer =
-          answers[index];
-
-        const correct =
-          answer === question.answer;
+      .map((question, index) => {
 
         const userAnswer =
-          answer === null
-            ? "بدون پاسخ"
-            : `${["A","B","C","D"][answer]}) ${question.options[answer]}`;
+          answers[index];
 
-        const correctAnswer =
-          `${["A","B","C","D"][question.answer]}) ${question.options[question.answer]}`;
+
+        const isCorrect =
+          userAnswer === question.answer;
+
+
+        const answerText =
+          userAnswer === null
+            ? "بدون پاسخ"
+            : `${["A", "B", "C", "D"][userAnswer]}) ${question.options[userAnswer]}`;
+
+
+        const correctText =
+          `${["A", "B", "C", "D"][question.answer]}) ${question.options[question.answer]}`;
 
 
         return `
 
           <div
-            class="review-item
-            ${correct ? "correct" : "wrong"}">
+            class="review-item ${isCorrect ? "correct" : "wrong"}">
 
             <b>
               ${index + 1}.
-              ${correct ? "✓ درست" : "✕ نادرست"}
+              ${isCorrect ? "✓ درست" : "✕ نادرست"}
             </b>
 
             <small>
 
               پاسخ شما:
-              ${escapeHTML(userAnswer)}
+              ${escapeHTML(answerText)}
 
               ${
-                correct
+                isCorrect
                   ? ""
-                  : `<br>
-                     پاسخ صحیح:
-                     ${escapeHTML(correctAnswer)}`
+                  : `
+                    <br>
+                    پاسخ صحیح:
+                    ${escapeHTML(correctText)}
+                  `
               }
 
             </small>
@@ -626,7 +688,7 @@ function renderReview() {
 
 
 /* =====================================================
-   SUPABASE
+   SAVE RESULT TO SUPABASE
 ===================================================== */
 
 async function saveResult(
@@ -634,65 +696,154 @@ async function saveResult(
   percentage
 ) {
 
-  if (!supabaseClient) {
+  const status =
+    $("saveStatus");
 
-    $("saveStatus").textContent =
-      "Supabase هنوز تنظیم نشده است.";
 
-    $("saveStatus").style.color =
+  /* Configuration check */
+
+  if (
+    !SUPABASE_URL ||
+    SUPABASE_URL.includes("YOUR_") ||
+    !SUPABASE_KEY ||
+    SUPABASE_KEY.includes("YOUR_")
+  ) {
+
+    status.textContent =
+      "Supabase هنوز در فایل JavaScript تنظیم نشده است.";
+
+    status.style.color =
       "var(--danger)";
+
+    console.error(
+      "Supabase URL or key is missing."
+    );
 
     return;
 
   }
 
 
-  $("saveStatus").textContent =
-    "در حال ثبت نتیجه در Supabase...";
+  status.textContent =
+    "در حال ثبت نتیجه...";
+
+  status.style.color =
+    "var(--muted)";
 
 
-  const { error } =
-    await supabaseClient
-      .from("quiz_results")
-      .insert([{
-
-        name:
-          studentName.trim(),
-
-        score:
-          score,
-
-        total_questions:
-          questions.length,
-
-        percentage:
-          percentage,
-
-        elapsed_seconds:
-          elapsedSeconds
-
-      }]);
+  const endpoint =
+    `${SUPABASE_URL}/rest/v1/quiz_results`;
 
 
-  if (error) {
+  const payload = {
 
-  console.error("Supabase error:", error);
+    name:
+      studentName.trim(),
 
-  $("saveStatus").textContent =
-    `خطا: ${error.message}`;
+    score:
+      score,
 
-  $("saveStatus").style.color =
-    "var(--danger)";
+    total_questions:
+      questions.length,
+
+    percentage:
+      percentage,
+
+    elapsed_seconds:
+      elapsedSeconds
+
+  };
+
+
+  try {
+
+    console.log(
+      "Sending result to:",
+      endpoint
+    );
+
+
+    const response =
+      await fetch(
+        endpoint,
+        {
+
+          method: "POST",
+
+          headers: {
+
+            "Content-Type":
+              "application/json",
+
+            "apikey":
+              SUPABASE_KEY,
+
+            "Authorization":
+              `Bearer ${SUPABASE_KEY}`,
+
+            "Prefer":
+              "return=minimal"
+
+          },
+
+          body:
+            JSON.stringify(payload)
+
+        }
+      );
+
+
+    const responseText =
+      await response.text();
+
+
+    if (!response.ok) {
+
+      console.error(
+        "Supabase HTTP error:",
+        response.status,
+        responseText
+      );
+
+
+      status.textContent =
+        `خطا ${response.status}: ${responseText}`;
+
+      status.style.color =
+        "var(--danger)";
+
+      return;
+
+    }
+
+
+    console.log(
+      "Result successfully saved."
+    );
+
+
+    status.textContent =
+      "نتیجه با موفقیت ثبت شد ✓";
+
+    status.style.color =
+      "var(--success)";
+
 
   }
 
-  else {
+  catch (error) {
 
-    $("saveStatus").textContent =
-      "نتیجه با موفقیت ثبت شد ✓";
+    console.error(
+      "Network / Supabase error:",
+      error
+    );
 
-    $("saveStatus").style.color =
-      "var(--success)";
+
+    status.textContent =
+      "خطا در ارتباط با Supabase.";
+
+    status.style.color =
+      "var(--danger)";
 
   }
 
@@ -700,7 +851,7 @@ async function saveResult(
 
 
 /* =====================================================
-   LOGIN
+   LOGIN FORM
 ===================================================== */
 
 $("loginForm")
@@ -709,6 +860,7 @@ $("loginForm")
     event => {
 
       event.preventDefault();
+
 
       const name =
         $("studentName")
@@ -725,26 +877,36 @@ $("loginForm")
       }
 
 
-      studentName = name;
+      studentName =
+        name;
+
 
       currentQuestion = 0;
+
 
       answers =
         new Array(questions.length)
           .fill(null);
 
+
       elapsedSeconds = 0;
+
 
       $("welcomeName").textContent =
         `سلام ${studentName} 👋`;
+
 
       $("timer").textContent =
         "00:00";
 
 
-      showScreen("quizScreen");
+      showScreen(
+        "quizScreen"
+      );
+
 
       startTimer();
+
 
       renderQuestion();
 
@@ -753,7 +915,7 @@ $("loginForm")
 
 
 /* =====================================================
-   NAVIGATION
+   PREVIOUS BUTTON
 ===================================================== */
 
 $("prevButton")
@@ -772,6 +934,10 @@ $("prevButton")
     }
   );
 
+
+/* =====================================================
+   NEXT BUTTON
+===================================================== */
 
 $("nextButton")
   .addEventListener(
@@ -810,10 +976,14 @@ $("restartButton")
 
       stopTimer();
 
+
       $("studentName").value =
         studentName;
 
-      showScreen("loginScreen");
+
+      showScreen(
+        "loginScreen"
+      );
 
     }
   );
@@ -831,18 +1001,19 @@ $("themeToggle")
       const root =
         document.documentElement;
 
-      const dark =
+
+      const isDark =
         root.dataset.theme === "dark";
 
 
       root.dataset.theme =
-        dark
+        isDark
           ? "light"
           : "dark";
 
 
       $("themeToggle").textContent =
-        dark
+        isDark
           ? "🌙"
           : "☀️";
 
@@ -868,26 +1039,28 @@ $("themeToggle")
     );
 
 
-  const dark =
+  const prefersDark =
+    window.matchMedia &&
+    window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
+
+
+  const isDark =
     saved === "dark" ||
-    (
-      !saved &&
-      window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      ).matches
-    );
+    (!saved && prefersDark);
 
 
   document.documentElement
     .dataset
     .theme =
-      dark
+      isDark
         ? "dark"
         : "light";
 
 
   $("themeToggle").textContent =
-    dark
+    isDark
       ? "☀️"
       : "🌙";
 
