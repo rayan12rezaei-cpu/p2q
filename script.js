@@ -1,26 +1,9 @@
-/* =====================================================
-   PROSPECT 2 QUIZ
-   Full JavaScript
-   GitHub Pages + Supabase REST API
-===================================================== */
-
-
-/* =====================================================
-   SUPABASE CONFIG
-===================================================== */
-
-// Project URL — بدون /rest/v1/
 const SUPABASE_URL =
   "https://nahdmpxqnwemwlpxyzxt.supabase.co";
 
 // Publishable key یا anon key
 const SUPABASE_KEY =
   "sb_publishable_UfTXNkzJW5bt5qFXBH80uA_bSrqh-42";
-
-
-/* =====================================================
-   QUESTIONS
-===================================================== */
 
 const questions = [
 
@@ -246,11 +229,6 @@ const questions = [
 
 ];
 
-
-/* =====================================================
-   STATE
-===================================================== */
-
 let currentQuestion = 0;
 
 let answers =
@@ -264,19 +242,9 @@ let timerInterval = null;
 
 let elapsedSeconds = 0;
 
-
-/* =====================================================
-   DOM HELPER
-===================================================== */
-
 function $(id) {
   return document.getElementById(id);
 }
-
-
-/* =====================================================
-   SCREEN MANAGEMENT
-===================================================== */
 
 function showScreen(id) {
 
@@ -298,11 +266,6 @@ function showScreen(id) {
 
 }
 
-
-/* =====================================================
-   ESCAPE HTML
-===================================================== */
-
 function escapeHTML(text) {
 
   return String(text).replace(
@@ -318,11 +281,6 @@ function escapeHTML(text) {
 
 }
 
-
-/* =====================================================
-   TIME FORMAT
-===================================================== */
-
 function formatTime(seconds) {
 
   const minutes =
@@ -336,11 +294,6 @@ function formatTime(seconds) {
   return `${minutes}:${secs}`;
 
 }
-
-
-/* =====================================================
-   TIMER
-===================================================== */
 
 function startTimer() {
 
@@ -378,11 +331,6 @@ function stopTimer() {
   }
 
 }
-
-
-/* =====================================================
-   RENDER QUESTION
-===================================================== */
 
 function renderQuestion() {
 
@@ -446,8 +394,6 @@ function renderQuestion() {
       .join("");
 
 
-  /* Question */
-
   $("questionContainer").innerHTML = `
 
     <article class="question-card glass">
@@ -468,8 +414,6 @@ function renderQuestion() {
 
   `;
 
-
-  /* Option listeners */
 
   document
     .querySelectorAll(
@@ -492,7 +436,6 @@ function renderQuestion() {
     });
 
 
-  /* Buttons */
 
   $("prevButton").disabled =
     currentQuestion === 0;
@@ -506,9 +449,6 @@ function renderQuestion() {
 }
 
 
-/* =====================================================
-   CALCULATE RESULT
-===================================================== */
 
 function calculateResult() {
 
@@ -558,11 +498,6 @@ function calculateResult() {
   };
 
 }
-
-
-/* =====================================================
-   FINISH QUIZ
-===================================================== */
 
 function finishQuiz() {
 
@@ -620,11 +555,6 @@ function finishQuiz() {
   );
 
 }
-
-
-/* =====================================================
-   REVIEW
-===================================================== */
 
 function renderReview() {
 
@@ -685,11 +615,6 @@ function renderReview() {
       .join("");
 
 }
-
-
-/* =====================================================
-   SAVE RESULT TO SUPABASE
-===================================================== */
 
 async function saveResult(
   score,
@@ -849,11 +774,6 @@ async function saveResult(
 
 }
 
-
-/* =====================================================
-   LOGIN FORM
-===================================================== */
-
 $("loginForm")
   .addEventListener(
     "submit",
@@ -914,10 +834,6 @@ $("loginForm")
   );
 
 
-/* =====================================================
-   PREVIOUS BUTTON
-===================================================== */
-
 $("prevButton")
   .addEventListener(
     "click",
@@ -935,9 +851,6 @@ $("prevButton")
   );
 
 
-/* =====================================================
-   NEXT BUTTON
-===================================================== */
 
 $("nextButton")
   .addEventListener(
@@ -965,9 +878,6 @@ $("nextButton")
   );
 
 
-/* =====================================================
-   RESTART
-===================================================== */
 
 $("restartButton")
   .addEventListener(
@@ -988,10 +898,6 @@ $("restartButton")
     }
   );
 
-
-/* =====================================================
-   THEME
-===================================================== */
 
 $("themeToggle")
   .addEventListener(
@@ -1026,10 +932,6 @@ $("themeToggle")
     }
   );
 
-
-/* =====================================================
-   INITIAL THEME
-===================================================== */
 
 (function initializeTheme() {
 
